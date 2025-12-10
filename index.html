@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>Intercom 模式測試頁</title>
+</head>
+<body>
+  <h1>Intercom Login 模式測試頁</h1>
+  <p>App ID: dqg861jp</p>
+
+  <button onclick="login()">Login / Boot</button>
+  <button onclick="logout()">Logout / Shutdown</button>
+  <button onclick="update()">Update</button>
+
+  <script>
+    const user = {
+      id: "12345",
+      name: "Lun Test 3",
+      createdAt: 1704067200 // Unix timestamp（秒）
+    };
+
+    function login() {
+      window.intercomSettings = {
+        app_id: "dqg861jp",
+        user_id: user.id,
+        name: user.name,
+        created_at: user.createdAt,
+        language_override: "zh-TW"
+      };
+
+      console.log("✅ Intercom boot with user:", window.intercomSettings);
+      Intercom("boot", window.intercomSettings);
+    }
+
+    function logout() {
+      console.log("🛑 Intercom shutdown");
+      Intercom("shutdown");
+    }
+
+    function update() {
+      console.log("🔄 Update Lang Only");
+      Intercom("update", {
+        language_override: "en"
+      });
+    }
+  </script>
+
+  <script>
+    (function () {
+      var w = window;
+      var ic = w.Intercom;
+      if (typeof ic === "function") {
+        ic("reattach_activator");
+        ic("update", w.intercomSettings);
+      } else {
+        var d = document;
+        var i = function () { i.c(arguments); };
+        i.q = [];
+        i.c = function (args) { i.q.push(args); };
+        w.Intercom = i;
+        var l = function () {
+          var s = d.createElement("script");
+          s.type = "text/javascript";
+          s.async = true;
+          s.src = "https://widget.intercom.io/widget/dqg861jp";
+          var x = d.getElementsByTagName("script")[0];
+          x.parentNode.insertBefore(s, x);
+        };
+        if (document.readyState === "complete") {
+          l();
+        } else if (w.attachEvent) {
+          w.attachEvent("onload", l);
+        } else {
+          w.addEventListener("load", l, false);
+        }
+      }
+    })();
+  </script>
+
+</body>
+</html>
