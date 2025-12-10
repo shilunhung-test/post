@@ -2,22 +2,34 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>Intercom 模式測試頁</title>
+  <title>Intercom 後端 + 前端 聯動測試頁</title>
 </head>
 <body>
-  <h1>Intercom Login 模式測試頁</h1>
+  <h1>Intercom 後端 + 前端 聯動測試頁</h1>
   <p>App ID: dqg861jp</p>
 
   <button onclick="login()">Login / Boot</button>
   <button onclick="logout()">Logout / Shutdown</button>
   <button onclick="update()">Update</button>
 
+  <hr />
+
+  <button onclick="simulateBackendEvent()">✅ 模擬「後端事件 + 前端同步」</button>
+  <button onclick="sendFrontendOnly()">🧪 只送前端 trackEvent</button>
+
+  <pre id="log"></pre>
+
   <script>
     const user = {
       id: "123456",
       name: "Lun Test 4",
-      createdAt: 1704067200 // Unix timestamp（秒）
+      createdAt: 1704067200
     };
+
+    function log(msg) {
+      document.getElementById("log").textContent += msg + "\n";
+      console.log(msg);
+    }
 
     function login() {
       window.intercomSettings = {
@@ -28,20 +40,45 @@
         language_override: "zh-TW"
       };
 
-      console.log("✅ Intercom boot with user:", window.intercomSettings);
+      log("✅ Intercom boot with user");
       Intercom("boot", window.intercomSettings);
     }
 
     function logout() {
-      console.log("🛑 Intercom shutdown");
+      log("🛑 Intercom shutdown");
       Intercom("shutdown");
     }
 
     function update() {
-      console.log("🔄 Update Lang Only");
+      log("🔄 Update language");
       Intercom("update", {
         language_override: "en"
       });
+    }
+
+    // ✅ 只測前端 TrackEvent（確認 Messenger 即時能力）
+    function sendFrontendOnly() {
+      log("trackEvent");
+
+      Intercom("trackEvent", "Tggroupnotificationevent3", {
+        TG_GROUP_VALUE: "https://t.me/+frontend-only"
+      });
+    }
+
+    // ✅ 模擬「後端發事件 → 前端補一顆 trackEvent」
+    function simulateBackendEvent() {
+      log("模擬後端事件已發出");
+
+      // ✅ 這行等於模擬你後端已經成功送出事件
+      const fakeBackendAck = true;
+
+      if (fakeBackendAck) {
+        log("Frontend trackEvent");
+
+        Intercom("trackEvent", "Tggroupnotificationevent3", {
+          TG_GROUP_VALUE: "https://t.me/+backend-linked"
+        });
+      }
     }
   </script>
 
