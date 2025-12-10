@@ -11,12 +11,13 @@
   <button onclick="login()">Login / Boot</button>
   <button onclick="logout()">Logout / Shutdown</button>
   <button onclick="update()">Update</button>
+  <button onclick="sendEvent()">Send Event</button>
 
   <script>
     const user = {
       id: "123456",
       name: "Lun Test 4",
-      createdAt: 1704067200 // Unix timestamp（秒）
+      createdAt: 1704067200
     };
 
     function login() {
@@ -28,20 +29,47 @@
         language_override: "zh-TW"
       };
 
-      console.log("✅ Intercom boot with user:", window.intercomSettings);
       Intercom("boot", window.intercomSettings);
     }
 
     function logout() {
-      console.log("🛑 Intercom shutdown");
       Intercom("shutdown");
     }
 
     function update() {
-      console.log("🔄 Update Lang Only");
       Intercom("update", {
         language_override: "en"
       });
+    }
+
+    async function sendEvent() {
+      const USER_ID = "123456";
+      const HOST_VALUE = "https://t.me/+test";
+      const TOKEN = "dG9rOjQ5MDljOTIxXzFkNGNfNGI5Zl9hNDI0XzA3Y2E4N2U0OTgzODoxOjA=";
+
+      const TS = Math.floor(Date.now() / 1000);
+
+      const res = await fetch("https://api.intercom.io/events", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${TOKEN}`,
+          Accept: "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          event_name: "Tggroupnotificationevent3",
+          created_at: TS,
+          user_id: USER_ID,
+          metadata: { TG_GROUP_VALUE: HOST_VALUE }
+        })
+      });
+
+      const requestId = res.headers.get("x-request-id");
+      const text = await res.text();
+
+      console.log("Status:", res.status);
+      console.log("Intercom Request ID:", requestId);
+      console.log("Response Body:", text);
     }
   </script>
 
@@ -76,6 +104,5 @@
       }
     })();
   </script>
-
 </body>
 </html>
