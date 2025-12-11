@@ -5,13 +5,12 @@
   <title>Intercom Post / Event 測試頁</title>
 </head>
 <body>
-  <h1>Intercom Frontend Event 測試頁</h1>
+  <h1>Intercom Login + trackEvent 測試頁</h1>
   <p>App ID: dqg861jp</p>
 
   <button onclick="login()">Login / Boot</button>
   <button onclick="logout()">Logout / Shutdown</button>
-  <button onclick="updateUser()">Update User</button>
-  <button onclick="sendTrackEvent()">Trigger trackEvent (Frontend Event)</button>
+  <button onclick="sendTrackEvent()">Trigger trackEvent</button>
 
   <script>
     const user = {
@@ -19,6 +18,8 @@
       name: "Lun Test 4",
       createdAt: 1704067200
     };
+
+    let intercomReady = false;
 
     // -----------------------------------
     // BOOT (Login)
@@ -32,8 +33,10 @@
         language_override: "zh-TW"
       };
 
-      console.log("🚀 Boot Intercom:", window.intercomSettings);
+      console.log("🚀 Boot Intercom", window.intercomSettings);
       Intercom("boot", window.intercomSettings);
+
+      intercomReady = true;
     }
 
     // -----------------------------------
@@ -42,24 +45,19 @@
     function logout() {
       console.log("🛑 Intercom shutdown");
       Intercom("shutdown");
-    }
-
-    // -----------------------------------
-    // UPDATE user data
-    // -----------------------------------
-    function updateUser() {
-      console.log("🔄 Update user");
-      Intercom("update", {
-        language_override: "en"
-      });
+      intercomReady = false;
     }
 
     // -----------------------------------
     // trackEvent
     // -----------------------------------
     function sendTrackEvent() {
-      console.log("🎯 Sending Frontend Event: trackEvent(Tggroupnotificationevent3)");
+      if (!intercomReady) {
+        console.warn("sent it before login");
+        return;
+      }
 
+      console.log("🎯 Sending trackEvent('Tggroupnotificationevent3')");
       Intercom("trackEvent", "Tggroupnotificationevent3", {
         TG_GROUP_VALUE: "frontend_test"
       });
@@ -90,16 +88,11 @@
           x.parentNode.insertBefore(s, x);
         };
 
-        if (document.readyState === "complete") {
-          l();
-        } else if (w.attachEvent) {
-          w.attachEvent("onload", l);
-        } else {
-          w.addEventListener("load", l, false);
-        }
+        if (document.readyState === "complete") l();
+        else if (w.attachEvent) w.attachEvent("onload", l);
+        else w.addEventListener("load", l, false);
       }
     })();
   </script>
-
 </body>
 </html>
